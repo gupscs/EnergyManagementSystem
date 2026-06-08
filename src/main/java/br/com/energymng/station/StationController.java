@@ -15,13 +15,7 @@ import java.util.List;
 class StationController {
 
     private final StationRepository stationRepository;
-    private final PumpRepository pumpRepository;
     private final StationService stationService;
-    private final PumpService pumpService;
-
-    // -------------------------------------------------------------------------
-    // Station CRUD
-    // -------------------------------------------------------------------------
 
     @GetMapping
     ResponseEntity<List<Station>> findAllStations() {
@@ -50,46 +44,6 @@ class StationController {
     @DeleteMapping("/{id}")
     ResponseEntity<Void> deleteStation(@PathVariable Long id) {
         stationService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // -------------------------------------------------------------------------
-    // Pump CRUD  (nested under /api/stations/{stationId}/pump/...)
-    // -------------------------------------------------------------------------
-
-    @GetMapping("/{stationId}/pump")
-    ResponseEntity<List<Pump>> findAllPumps(@PathVariable Long stationId) {
-        stationRepository.findByIdAndDeletedFalse(stationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Station not found"));
-        return ResponseEntity.ok(pumpRepository.findAllByStationIdAndDeletedFalse(stationId));
-    }
-
-    @GetMapping("/{stationId}/pump/{pumpId}")
-    ResponseEntity<Pump> findPumpById(@PathVariable Long stationId, @PathVariable Long pumpId) {
-        stationRepository.findByIdAndDeletedFalse(stationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Station not found"));
-        Pump pump = pumpRepository.findByIdAndStationIdAndDeletedFalse(pumpId, stationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pump not found"));
-        return ResponseEntity.ok(pump);
-    }
-
-    @PostMapping("/{stationId}/pump")
-    ResponseEntity<Pump> createPump(@PathVariable Long stationId,
-                                    @Valid @RequestBody Pump pump) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(pumpService.create(stationId, pump));
-    }
-
-    @PutMapping("/{stationId}/pump/{pumpId}")
-    ResponseEntity<Pump> updatePump(@PathVariable Long stationId,
-                                    @PathVariable Long pumpId,
-                                    @Valid @RequestBody Pump body) {
-        return ResponseEntity.ok(pumpService.update(stationId, pumpId, body));
-    }
-
-    @DeleteMapping("/{stationId}/pump/{pumpId}")
-    ResponseEntity<Void> deletePump(@PathVariable Long stationId,
-                                    @PathVariable Long pumpId) {
-        pumpService.delete(stationId, pumpId);
         return ResponseEntity.noContent().build();
     }
 }
