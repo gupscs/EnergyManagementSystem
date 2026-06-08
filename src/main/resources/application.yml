@@ -22,6 +22,13 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+  modulith:
+    republish-outstanding-events-on-restart: true
+    events:
+      jdbc:
+        schema-initialization:
+          enabled: true
+
 server:
   port: 8080
 
@@ -29,9 +36,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,modulith
+        include: health,info,modulith,metrics
+  tracing:
+    sampling:
+      probability: 1.0   # 100% in dev; tune down in prod
 
 logging:
   level:
-    br.com.energymng: DEBUG
+    root: WARN
+    br.com.energymng: INFO
     org.springframework.modulith: INFO

@@ -39,4 +39,24 @@ public class  Pump extends AuditableEntity {
 
     @Column(nullable = false)
     private boolean deleted = false;
+
+    public CarPluggedEvent toCarPluggedEvent(Double batteryLevel) {
+        Station s = this.getStation();
+        return new CarPluggedEvent(
+                this.getId(),
+                s.getId(),
+                s.getName(),
+                s.getAddress(),
+                s.getZipcode(),
+                s.getLongitude(),
+                s.getLatitude(),
+                this.getPumpUniqueId(),
+                this.getName(),
+                this.getPumpStatus(),
+                this.getCarPluggedUniqueId(),
+                this.getPluggedAt(),
+                batteryLevel,
+                this.isDeleted()
+        );
+    }
 }

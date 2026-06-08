@@ -16,4 +16,6 @@ interface PumpRepository extends JpaRepository<Pump, Long> {
     Optional<Pump> findByIdAndStationIdAndDeletedFalse(Long id, Long stationId);
 
     boolean existsByPumpUniqueIdAndDeletedFalse(String pumpUniqueId);
+
+    Optional<Pump> findByPumpUniqueIdAndDeletedFalse(String pumpUniqueId);
 }

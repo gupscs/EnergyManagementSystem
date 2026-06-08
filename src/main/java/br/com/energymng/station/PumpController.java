@@ -16,7 +16,6 @@ class PumpController {
 
     private final StationRepository stationRepository;
     private final PumpRepository pumpRepository;
-    private final StationService stationService;
     private final PumpService pumpService;
 
      // -------------------------------------------------------------------------
@@ -68,4 +67,11 @@ class PumpController {
         pumpService.delete( pumpId);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/pump/carPlugged")
+    ResponseEntity<Pump> carPlugged(@RequestBody CarPluggedRequest body) {
+        return ResponseEntity.ok(pumpService.carPlugged(body));
+    }
+
+
 }

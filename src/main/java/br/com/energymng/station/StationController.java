@@ -2,6 +2,7 @@ package br.com.energymng.station;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/stations")
 @RequiredArgsConstructor
@@ -32,7 +34,9 @@ class StationController {
     @PostMapping
     ResponseEntity<Station> createStation(@Valid @RequestBody Station station) {
         station.setId(null);
-        return ResponseEntity.status(HttpStatus.CREATED).body(stationRepository.save(station));
+        Station saved = stationRepository.save(station);
+        log.info("Station created id={} name={}", saved.getId(), saved.getName());
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
