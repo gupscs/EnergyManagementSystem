@@ -1,5 +1,7 @@
 package br.com.energymng.station;
 
+import br.com.energymng.common.entity.AuditableEntity;
+import br.com.energymng.common.event.station.CarPluggedEvent;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,9 @@ public class  Pump extends AuditableEntity {
     @Column(name = "pump_unique_id", nullable = false, unique = true)
     private String pumpUniqueId;
 
+    @Column(name = "pump_code")
+    private Integer pumpCode;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id", nullable = false)
     private Station station;
@@ -37,6 +42,9 @@ public class  Pump extends AuditableEntity {
     @Column(name = "plugged_at")
     private LocalDateTime pluggedAt;
 
+    @Column(name = "pump_kwh")
+    private Double pumpKwh;
+
     @Column(nullable = false)
     private boolean deleted = false;
 
@@ -50,12 +58,15 @@ public class  Pump extends AuditableEntity {
                 s.getZipcode(),
                 s.getLongitude(),
                 s.getLatitude(),
+                s.getStationCode(),
                 this.getPumpUniqueId(),
                 this.getName(),
                 this.getPumpStatus(),
+                this.getPumpCode(),
                 this.getCarPluggedUniqueId(),
                 this.getPluggedAt(),
                 batteryLevel,
+                this.getPumpKwh(),
                 this.isDeleted()
         );
     }

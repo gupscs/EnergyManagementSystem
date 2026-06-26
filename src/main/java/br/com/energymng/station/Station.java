@@ -1,5 +1,6 @@
 package br.com.energymng.station;
 
+import br.com.energymng.common.entity.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,9 @@ public class Station extends AuditableEntity {
 
     @Column(nullable = false)
     private String name;
+
+    @Column(name = "station_code")
+    private Integer stationCode;
 
     private String address;
 

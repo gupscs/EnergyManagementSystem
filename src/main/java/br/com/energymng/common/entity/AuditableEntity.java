@@ -1,4 +1,4 @@
-package br.com.energymng.charge;
+package br.com.energymng.common.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

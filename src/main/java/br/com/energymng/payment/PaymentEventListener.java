@@ -1,6 +1,6 @@
-package br.com.energymng.carmng;
+package br.com.energymng.payment;
 
-import br.com.energymng.common.event.station.CarPluggedEvent;
+import br.com.energymng.common.event.payment.PaymentCalculateAmountEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.retry.annotation.Backoff;
@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-class CarMngEventListener {
+class PaymentEventListener {
 
-    private final CarService carService;
+    private final PaymentService paymentService;
 
     @ApplicationModuleListener
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000, multiplier = 2))
-    void carPluggedEventListener(CarPluggedEvent event) {
-        carService.carPlugged(event);
+    void onPaymentCalculateAmount(PaymentCalculateAmountEvent event) {
+        paymentService.calculateAmount(event);
     }
 }

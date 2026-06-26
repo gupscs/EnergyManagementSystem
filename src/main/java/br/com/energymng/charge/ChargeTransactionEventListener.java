@@ -1,5 +1,6 @@
 package br.com.energymng.charge;
 
+import br.com.energymng.common.event.charge.ChargeTransactionStartByCarPluggedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.retry.annotation.Backoff;

@@ -1,5 +1,8 @@
 package br.com.energymng.charge;
 
+import br.com.energymng.common.entity.AuditableEntity;
+import br.com.energymng.common.event.charge.ChargeTransactionStartByCarPluggedEvent;
+import br.com.energymng.common.event.payment.PaymentCalculateAmountEvent;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,6 +39,9 @@ public class ChargeTransaction extends AuditableEntity {
     @Column(name = "car_owner_phone")
     private String carOwnerPhone;
 
+    @Column(name = "car_owner_identification")
+    private String carOwnerIdentification;
+
     @Column(name = "car_owner_email")
     private String carOwnerEmail;
 
@@ -68,6 +74,12 @@ public class ChargeTransaction extends AuditableEntity {
     @Column(name = "pump_name")
     private String pumpName;
 
+    @Column(name = "pump_code")
+    private Integer pumpCode;
+
+    @Column(name = "pump_kwh")
+    private Double pumpKwh;
+
     // ── Station snapshot ────────────────────────────────────────────────────
     @Column(name = "station_id")
     private Long stationId;
@@ -86,6 +98,9 @@ public class ChargeTransaction extends AuditableEntity {
 
     @Column(name = "station_latitude", precision = 10, scale = 7)
     private BigDecimal stationLatitude;
+
+    @Column(name = "station_code")
+    private Integer stationCode;
 
     // ── Charge payment ──────────────────────────────────────────────────────
     @Column(name = "confirm_charge_amount", precision = 15, scale = 2)
@@ -151,10 +166,11 @@ public class ChargeTransaction extends AuditableEntity {
     @Column(name = "total_charge_amount", precision = 15, scale = 2)
     private BigDecimal totalChargeAmount;
 
-    public void setByEvent(ChargeTransactionStartByCarPluggedEvent event) {
+    public void populateEmptyFields(ChargeTransactionStartByCarPluggedEvent event) {
         if (carOwnerId == null) carOwnerId = event.carOwnerId();
         if (isBlank(carOwnerName)) carOwnerName = event.carOwnerName();
         if (isBlank(carOwnerPhone)) carOwnerPhone = event.carOwnerPhone();
+        if (isBlank(carOwnerIdentification)) carOwnerIdentification = event.carOwnerIdentification();
         if (isBlank(carOwnerEmail)) carOwnerEmail = event.carOwnerEmail();
         if (carId == null) carId = event.carId();
         if (isBlank(carUniqueId)) carUniqueId = event.carUniqueId();
@@ -165,15 +181,52 @@ public class ChargeTransaction extends AuditableEntity {
         if (pumpId == null) pumpId = event.pumpId();
         if (isBlank(pumpUniqueId)) pumpUniqueId = event.pumpUniqueId();
         if (isBlank(pumpName)) pumpName = event.pumpName();
+        if (pumpCode == null) pumpCode = event.pumpCode();
+        if (pumpKwh == null) pumpKwh = event.pumpKwh();
         if (stationId == null) stationId = event.stationId();
         if (isBlank(stationName)) stationName = event.stationName();
         if (isBlank(stationAddress)) stationAddress = event.stationAddress();
         if (isBlank(stationZipcode)) stationZipcode = event.stationZipcode();
         if (stationLongitude == null) stationLongitude = event.stationLongitude();
         if (stationLatitude == null) stationLatitude = event.stationLatitude();
+        if (stationCode == null) stationCode = event.stationCode();
     }
 
     private static boolean isBlank(String value) {
         return value == null || value.isBlank();
+    }
+
+    public PaymentCalculateAmountEvent toPaymentCalculateAmountEvent() {
+        return new PaymentCalculateAmountEvent(
+                this.carOwnerId,
+                this.carOwnerName,
+                this.carOwnerPhone,
+                this.carOwnerIdentification,
+                this.carOwnerEmail,
+                this.carId,
+                this.carUniqueId,
+                this.carPlate,
+                this.carModel,
+                this.carPluggedAt,
+                this.initialBatteryLevelInPercent,
+                this.pumpId,
+                this.pumpKwh
+        );
+    }
+
+    public void populateEmptyFields(ChargeStartRequest request) {
+        if (isBlank(carOwnerPhone)) carOwnerPhone = request.carOwnerPhone();
+        if (isBlank(carOwnerIdentification)) carOwnerIdentification = request.carOwnerIdentification();
+        if (pumpId == null) pumpId = request.pumpId();
+        if (isBlank(pumpUniqueId)) pumpUniqueId = request.pumpUniqueId();
+        if (isBlank(pumpName)) pumpName = request.pumpName();
+        if (pumpCode == null) pumpCode = request.pumpCode();
+        if (stationId == null) stationId = request.stationId();
+        if (isBlank(stationName)) stationName = request.stationName();
+        if (isBlank(stationAddress)) stationAddress = request.stationAddress();
+        if (isBlank(stationZipcode)) stationZipcode = request.stationZipcode();
+        if (stationLongitude == null) stationLongitude = request.stationLongitude();
+        if (stationLatitude == null) stationLatitude = request.stationLatitude();
+        if (stationCode == null) stationCode = request.stationCode();
     }
 }

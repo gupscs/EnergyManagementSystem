@@ -1,5 +1,6 @@
 package br.com.energymng.carmng;
 
+import br.com.energymng.common.entity.AuditableEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

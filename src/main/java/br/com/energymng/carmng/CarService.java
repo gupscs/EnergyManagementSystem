@@ -1,7 +1,7 @@
 package br.com.energymng.carmng;
 
-import br.com.energymng.charge.ChargeTransactionStartByCarPluggedEvent;
-import br.com.energymng.station.CarPluggedEvent;
+import br.com.energymng.common.event.charge.ChargeTransactionStartByCarPluggedEvent;
+import br.com.energymng.common.event.station.CarPluggedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

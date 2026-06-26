@@ -24,6 +24,13 @@ class StationController {
         return ResponseEntity.ok(stationRepository.findAllByDeletedFalse());
     }
 
+    @GetMapping("/by-code/{stationCode}")
+    ResponseEntity<Station> findByStationCode(@PathVariable Integer stationCode) {
+        Station station = stationRepository.findByStationCodeWithPumps(stationCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Station not found"));
+        return ResponseEntity.ok(station);
+    }
+
     @GetMapping("/{id}")
     ResponseEntity<Station> findStationById(@PathVariable Long id) {
         Station station = stationRepository.findByIdAndDeletedFalse(id)
