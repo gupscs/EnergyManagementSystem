@@ -13,15 +13,9 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping
-    public ResponseEntity<Payment> process(@RequestParam Long userId,
-                                           @RequestParam Long sessionId,
-                                           @RequestParam BigDecimal amount) {
-        return ResponseEntity.ok(paymentService.process(userId, sessionId, amount));
-    }
-
-    @GetMapping("/user/{userId}")
-    public List<Payment> findByUser(@PathVariable Long userId) {
-        return paymentService.findByUser(userId);
+    @PostMapping("/link")
+    public ResponseEntity<String> createPaymentLink(@RequestBody CreatePaymentLinkRequest request) {
+        String paymentLink = paymentService.createPaymentLink(request);
+        return ResponseEntity.ok(paymentLink);
     }
 }

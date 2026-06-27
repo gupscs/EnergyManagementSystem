@@ -1,6 +1,7 @@
 package br.com.energymng.notification;
 
 import br.com.energymng.common.event.notification.CarOwnerNotificationEvent;
+import br.com.energymng.common.event.notification.CarOwnerPaymentCalculationNotificationEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Component;
@@ -16,5 +17,13 @@ class NotificationEventListener {
 
         // TODO: Notification - send to user via WhatsApp or WebSocket UI
         // Use event.message().getMessage() to get the human-readable text for the chosen channel
+    }
+
+    @ApplicationModuleListener
+    void onCarOwnerPaymentCalculationNotification(CarOwnerPaymentCalculationNotificationEvent event) {
+        log.info("Payment calculation notification queued phone={} pumpId={} hasEstimative={} estimatedMaxAmount={}",
+                event.carOwnerPhone(), event.pumpId(), event.hasEstimative(), event.estimatedMaxAmount());
+
+        // TODO: Notification - send to user via WhatsApp or WebSocket UI for user confirm the amount for payment
     }
 }
