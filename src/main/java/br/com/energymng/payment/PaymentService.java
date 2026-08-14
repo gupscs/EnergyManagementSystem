@@ -1,6 +1,7 @@
 package br.com.energymng.payment;
 
 import br.com.energymng.common.event.notification.CarOwnerPaymentCalculationNotificationEvent;
+import br.com.energymng.common.event.payment.ChargeTransactionPaidEvent;
 import br.com.energymng.common.event.payment.PaymentCalculateAmountEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -103,6 +104,7 @@ class PaymentService {
         statement.setAmount(request.amountConfirmed());
         statement.setPaymentMethod(request.paymentMethod());
         statement.setTransactionAt(LocalDateTime.now());
+        statement.setPumpId(request.pumpId());
         carOwnerWalletStatementRepository.save(statement);
 
         log.info("CarOwnerWalletStatement created chargeTransactionId={} walletId={}",
@@ -137,10 +139,19 @@ class PaymentService {
         log.info("successPayment completed walletId={} newBalance={}",
                 wallet.getId(), wallet.getBalance());
 
-        enviar notificacao para o gateway iniciar o load
-                gateway apos confirmar, enviar notificacao para o usuario avisando
-        que iniciou e o tempo estimado para carga de acordo com os creditos e o preco do valor de idlle
+        // 1. Select Tariff and calculate Kwh
+        Tariff tariff = tariffRepository.findByPumpId(statement.getPumpId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Tariff not found for pumpId=" + statement.getPumpId()));
 
+        BigDecimal balanceInKwh = BigDecimal.ZERO;
+        if (tariff.getKwhPrice() != null && tariff.getKwhPrice().compareTo(BigDecimal.ZERO) > 0) {
+            balanceInKwh = wallet.getBalance().divide(tariff.getKwhPrice(), 2, RoundingMode.HALF_UP);
+        }
 
+        // 2. Publish the event ChargeTransactionPaiedEvent
+        eventPublisher.publishEvent(ChargeTransactionPaidEvent.create(request, wallet, balanceInKwh));
+
+        log.info("ChargeTransactionPaiedEvent published for chargeTransactionId={}", request.chargeTransactionId());
     }
 }

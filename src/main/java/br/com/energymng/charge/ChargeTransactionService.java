@@ -2,12 +2,17 @@ package br.com.energymng.charge;
 
 import br.com.energymng.common.event.charge.ChargeTransactionStartByCarPluggedEvent;
 import br.com.energymng.common.event.notification.CarOwnerNotificationEvent;
+import br.com.energymng.common.event.ocppgateway.PumpLoadStartEvent;
+import br.com.energymng.common.event.payment.ChargeTransactionPaidEvent;
+import br.com.energymng.common.event.payment.ChargeTransactionPaiedEvent;
 import br.com.energymng.notification.NotificationMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +60,36 @@ class ChargeTransactionService {
         }
     }
 
+    void chargeTransactionPaided(ChargeTransactionPaidEvent event) {
+        ChargeTransaction chargeTransaction = repository.findById(event.chargeTransactionId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "ChargeTransaction not found for id=" + event.chargeTransactionId()));
+
+        chargeTransaction.setConfirmChargeAmount(event.confirmChargeAmount());
+        chargeTransaction.setPaymentTransactionId(event.paymentTransactionId());
+        chargeTransaction.setPaymentMethod(event.paymentMethod());
+        chargeTransaction.setPaymentGateway(event.paymentGateway());
+        chargeTransaction.setPaymentAt(event.paymentAt());
+        chargeTransaction.setCarOwnerPhone(event.carOwnerPhone());
+        chargeTransaction.setCarOwnerIdentification(event.carOwnerIdentification());
+        chargeTransaction.setPaymentTransactionId(event.gatewayTransactionId());
+        chargeTransaction.setPaymentAt(event.transactionAt());
+        chargeTransaction.setBalance(event.balance());
+        chargeTransaction.setBalanceInKwh(event.balanceInKwh());
+        chargeTransaction.setChargeStatus(ChargeStatus.PAID); // Assuming the status changes to PAID after payment
+
+        repository.save(chargeTransaction);
+        log.info("ChargeTransaction updated to PAID id={} chargeTransactionId={}",
+                chargeTransaction.getId(), event.chargeTransactionId());
+
+        eventPublisher.publishEvent(new PumpLoadStartEvent(
+                chargeTransaction.getPumpId(),
+                chargeTransaction.getPumpUniqueId(),
+                chargeTransaction.getId(),
+                event.balanceInKwh()
+        ));
+    }
+
     private void updateExisting(ChargeTransaction tx) {
         tx.setChargeStatus(ChargeStatus.STARTED);
         repository.save(tx);
@@ -85,6 +120,4 @@ class ChargeTransactionService {
             }
         }
     }
-
-
 }

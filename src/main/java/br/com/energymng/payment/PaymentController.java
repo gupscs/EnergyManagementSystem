@@ -18,4 +18,11 @@ public class PaymentController {
         String paymentLink = paymentService.createPaymentLink(request);
         return ResponseEntity.ok(paymentLink);
     }
+
+    //Webhook payment gateway
+    @PostMapping("/success")
+    public ResponseEntity<Void> successPayment(@RequestBody SuccessPaymentRequest request) {
+        paymentService.successPayment(request);
+        return ResponseEntity.ok().build();
+    }
 }
